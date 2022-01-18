@@ -41,7 +41,6 @@ func ResolveAttachments(
 	if err != nil {
 		return nil, err
 	}
-
 	for _, attach := range attaches {
 		checksum, err := getChecksum(attach.Path)
 		if err != nil {

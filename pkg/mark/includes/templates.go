@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"io/ioutil"
-	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
@@ -22,8 +21,7 @@ var reIncludeDirective = regexp.MustCompile(
 	`(?s)<!--\s*Include:\s*(?P<template>\S+)\s*(\n(?P<config>.*?))?-->`)
 
 func LoadTemplate(
-	cwd string,
-	relativePath string,
+	base string,
 	path string,
 	templates *template.Template,
 ) (*template.Template, error) {
@@ -36,27 +34,12 @@ func LoadTemplate(
 		return template, nil
 	}
 
-	var (
-		body []byte
-		err  error
-	)
-	for {
-		spath := filepath.Join(cwd, relativePath, path)
-		if body, err = ioutil.ReadFile(spath); err == nil {
-			break
-		}
-		if !strings.Contains(relativePath, "/") {
-			err = os.ErrNotExist
-			break
-		}
-		relativePath = relativePath[:strings.LastIndexAny(relativePath, "/")]
-	}
+	body, err := ioutil.ReadFile(filepath.Join(base, path))
 	if err != nil {
 		err = facts.Format(
 			err,
 			"unable to read template file",
 		)
-
 		return nil, err
 	}
 
@@ -80,8 +63,7 @@ func LoadTemplate(
 }
 
 func ProcessIncludes(
-	cwd string,
-	relativePath string,
+	base string,
 	contents []byte,
 	templates *template.Template,
 ) (*template.Template, []byte, bool, error) {
@@ -139,7 +121,7 @@ func ProcessIncludes(
 
 			log.Tracef(vardump(facts, data), "including template %q", path)
 
-			templates, err = LoadTemplate(cwd, relativePath, path, templates)
+			templates, err = LoadTemplate(base, path, templates)
 			if err != nil {
 				err = facts.Format(err, "unable to load template")
 

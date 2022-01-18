@@ -14,7 +14,6 @@ import (
 type Lib struct {
 	Macros    []macro.Macro
 	Templates *template.Template
-	CWD       string
 }
 
 func New(api *confluence.API) (*Lib, error) {
@@ -33,10 +32,6 @@ func New(api *confluence.API) (*Lib, error) {
 		return nil, err
 	}
 
-	if api != nil {
-		lib.CWD = api.CWD
-	}
-
 	return &lib, nil
 }
 
@@ -46,6 +41,7 @@ func macros(templates *template.Template) ([]macro.Macro, error) {
 	}
 
 	macros, _, err := macro.ExtractMacros(
+		"",
 		[]byte(text(
 			`<!-- Macro: @\{([^}]+)\}`,
 			`     Template: ac:link:user`,

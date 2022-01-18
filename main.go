@@ -31,7 +31,6 @@ type Flags struct {
 	Trace          bool   `docopt:"--trace"`
 	Username       string `docopt:"-u"`
 	Password       string `docopt:"-p"`
-	CWD            string `docopt:"-w"`
 	TargetURL      string `docopt:"-l"`
 	BaseURL        string `docopt:"--base-url"`
 	Config         string `docopt:"--config"`
@@ -55,7 +54,6 @@ Options:
   -u <username>        Use specified username for updating Confluence page.
   -p <token>           Use specified token for updating Confluence page.
                         Specify - as password to read password from stdin.
-  -w <workspace>       Use specified workspace path as the root of a relative path.
   -l <url>             Edit specified Confluence page.
                         If -l is not specified, file should contain metadata (see
                         above).
@@ -117,15 +115,6 @@ func main() {
 	config, err := LoadConfig(flags.Config)
 	if err != nil {
 		log.Fatal(err)
-	}
-
-	if flags.CWD != "" {
-		config.CWD = flags.CWD
-	}
-	if config.CWD == "" {
-		config.CWD, _ = os.Getwd()
-	} else {
-		config.CWD, _ = filepath.Abs(config.CWD)
 	}
 
 	creds, err := GetCredentials(flags, config)
@@ -213,17 +202,11 @@ func processFile(
 	}
 
 	templates := stdlib.Templates
-	relativePath, _ := filepath.Split(file)
-	if relativePath != "" {
-		relativePath = filepath.Clean(relativePath)
-	}
-
 	var recurse bool
 
 	for {
 		templates, markdown, recurse, err = includes.ProcessIncludes(
-			api.CWD,
-			relativePath,
+			filepath.Dir(file),
 			markdown,
 			templates,
 		)
@@ -236,7 +219,7 @@ func processFile(
 		}
 	}
 
-	macros, markdown, err := macro.ExtractMacros(markdown, templates)
+	macros, markdown, err := macro.ExtractMacros(filepath.Dir(file), markdown, templates)
 	if err != nil {
 		log.Fatal(err)
 	}
