@@ -122,7 +122,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	api := confluence.NewAPI(creds.BaseURL, creds.Username, creds.Password, config.CWD)
+	api := confluence.NewAPI(creds.BaseURL, creds.Username, creds.Password)
 
 	files, err := filepath.Glob(flags.FileGlobPatten)
 	if err != nil {

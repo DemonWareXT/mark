@@ -10,7 +10,6 @@ type Config struct {
 	Username string `env:"MARK_USERNAME" toml:"username"`
 	Password string `env:"MARK_PASSWORD" toml:"password"`
 	BaseURL  string `env:"MARK_BASE_URL" toml:"base_url"`
-	CWD      string `env:"MARK_CWD" toml:"cwd"`
 }
 
 func LoadConfig(path string) (*Config, error) {
