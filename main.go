@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"github.com/kovetskiy/mark/pkg/mark/vfs"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -257,7 +258,7 @@ func processFile(
 	}
 
 	if flags.CompileOnly {
-		fmt.Println(mark.CompileMarkdown(markdown, stdlib))
+		fmt.Println(mark.CompileMarkdown(markdown, stdlib, nil))
 		os.Exit(0)
 	}
 
@@ -322,11 +323,19 @@ func processFile(
 		target = page
 	}
 
+	mermaidImages, err := mark.ExtractMermaidImage(markdown)
+	if err != nil {
+		log.Fatal(err, "unable to render mermiad")
+	}
+	mermaidAttaches := mark.ConvertToAttachments(mermaidImages)
+	localAttaches, err := mark.ResolveLocalAttachments(vfs.LocalOS, filepath.Dir(file), meta.Attachments)
+	if err != nil {
+		log.Fatalf(err, "unable to locate attachments")
+	}
 	attaches, err := mark.ResolveAttachments(
 		api,
 		target,
-		filepath.Dir(file),
-		meta.Attachments,
+		append(mermaidAttaches, localAttaches...),
 	)
 	if err != nil {
 		log.Fatalf(err, "unable to create/update attachments")
@@ -341,7 +350,7 @@ func processFile(
 		markdown = mark.DropDocumentLeadingH1(markdown)
 	}
 
-	html := mark.CompileMarkdown(markdown, stdlib)
+	html := mark.CompileMarkdown(markdown, stdlib, attaches)
 
 	{
 		var buffer bytes.Buffer
