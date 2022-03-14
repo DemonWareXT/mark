@@ -4,7 +4,7 @@ go 1.17
 
 require (
 	github.com/docopt/docopt-go v0.0.0-20180111231733-ee0de3bc6815
-	github.com/dreampuf/mermaid.go v0.0.5
+	github.com/dreampuf/mermaid.go v0.0.8
 	github.com/kovetskiy/blackfriday/v2 v2.3.0
 	github.com/kovetskiy/gopencils v0.0.0-20210811071033-d690b7a013fb
 	github.com/kovetskiy/ko v0.0.0-20190324102900-26b8dd0988bf
