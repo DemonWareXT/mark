@@ -84,7 +84,7 @@ func (renderer ConfluenceRenderer) RenderNode(
 							},
 						)
 						embedded = true
-						language = "plaintext"
+						language = "text"
 						break
 					}
 				}
